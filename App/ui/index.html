@@ -1,0 +1,225 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Grammar Reviewer</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main class="sheet" id="sheet">
+
+    <header class="head" id="drag">
+      <div class="brand">
+        <span class="mark" aria-hidden="true"></span>
+        <div>
+          <h1>Grammar Reviewer</h1>
+          <p class="sub" id="pipeline">Revisión académica</p>
+        </div>
+      </div>
+      <div class="head-actions">
+        <div class="lang-switch" role="group" aria-label="Idioma del texto">
+          <button data-lang="es" aria-pressed="true">ES</button>
+          <button data-lang="en" aria-pressed="false">EN</button>
+        </div>
+        <button class="icon" id="btn-chat" title="Chat con los modelos" aria-label="Chat con los modelos">
+          <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M4 5h16v11H9l-5 4V5Z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>
+        </button>
+        <button class="icon" id="btn-write" title="Escribir o pegar texto" aria-label="Escribir o pegar texto">
+          <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16v4Z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M13.5 6.5l4 4" stroke="currentColor" stroke-width="1.6"/></svg>
+        </button>
+        <button class="health" id="health" data-state="gray" title="Estado de las APIs" aria-label="Estado de las APIs"><span class="dot"></span></button>
+        <button class="icon" id="btn-help" title="Cómo funciona" aria-label="Cómo funciona">
+          <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.7.3-1 .9-1 1.6v.6" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><circle cx="12" cy="17" r="1" fill="currentColor"/></svg>
+        </button>
+        <button class="icon" id="btn-settings" title="Claves de API" aria-label="Claves de API">
+          <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M12 15.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Z" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M19.4 13.5a7.7 7.7 0 0 0 0-3l2-1.5-2-3.4-2.4 1a7.4 7.4 0 0 0-2.6-1.5L14 3h-4l-.4 2.6A7.4 7.4 0 0 0 7 7.1l-2.4-1-2 3.4 2 1.5a7.7 7.7 0 0 0 0 3l-2 1.5 2 3.4 2.4-1a7.4 7.4 0 0 0 2.6 1.5L10 21h4l.4-2.6a7.4 7.4 0 0 0 2.6-1.5l2.4 1 2-3.4-2-1.5Z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>
+        </button>
+        <button class="icon" id="btn-minimize" title="Minimizar a icono" aria-label="Minimizar">
+          <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M5 12h14" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+        </button>
+        <button class="icon" id="btn-close" title="Cerrar (Esc)" aria-label="Cerrar">
+          <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+        </button>
+      </div>
+    </header>
+
+    <div id="views">
+      <!-- Vista de revisión -->
+      <section id="view-review" class="view">
+        <nav class="modes" role="tablist" aria-label="Modo">
+          <button data-mode="Correct" class="mode" role="tab">Corregir</button>
+          <button data-mode="Scientific" class="mode" role="tab">Científico</button>
+          <button data-mode="Formal" class="mode" role="tab">Formal</button>
+          <button data-mode="Rewrite" class="mode" role="tab">Reescribir</button>
+          <button data-mode="Concise" class="mode" role="tab">Conciso</button>
+          <button data-mode="Casual" class="mode" role="tab">Casual</button>
+          <button data-mode="Translate" class="mode" role="tab">Traducir</button>
+        </nav>
+
+        <div class="body">
+          <div id="state-loading" class="state" hidden>
+            <div class="skeleton"></div>
+            <div class="skeleton short"></div>
+            <div class="skeleton"></div>
+            <p class="hint">Revisando con varios modelos…</p>
+          </div>
+
+          <div id="state-result" class="state" hidden>
+            <div class="label" id="result-label">Propuesta</div>
+            <div class="diff" id="diff" aria-live="polite"></div>
+            <div class="label changes-head">
+              <span><span id="changes-label">Cambios</span> <span class="count" id="count"></span></span>
+              <span class="changes-actions" id="changes-actions">
+                <button class="link" id="btn-accept-all">Aceptar todo</button>
+                <button class="link" id="btn-reject-all">Rechazar todo</button>
+              </span>
+            </div>
+            <ol class="changes" id="changes"></ol>
+          </div>
+
+          <div id="state-message" class="state" hidden>
+            <p class="message" id="message"></p>
+          </div>
+        </div>
+
+        <footer class="foot">
+          <button class="ghost" id="btn-copy">Copiar</button>
+          <button class="ghost" id="btn-discard">Descartar</button>
+          <button class="primary" id="btn-apply">Aplicar <kbd>Ctrl+Enter</kbd></button>
+        </footer>
+      </section>
+
+      <!-- Vista de chat con los modelos -->
+      <section id="view-chat" class="view" hidden>
+        <div class="chat-top">
+          <span class="hint">Pregunta sobre gramática, estilo, traducción o interpretación.</span>
+          <button class="link" id="btn-chat-new">Nueva conversación</button>
+        </div>
+        <div class="chat-log" id="chat-log" aria-live="polite"></div>
+        <footer class="foot chat-foot">
+          <textarea id="chat-input" class="chat-input" rows="2" placeholder="Escribe tu pregunta… (Enter envía, Shift+Enter nueva línea)"></textarea>
+          <button class="primary" id="btn-chat-send">Enviar</button>
+        </footer>
+      </section>
+
+      <!-- Vista para escribir o pegar texto -->
+      <section id="view-write" class="view" hidden>
+        <div class="body">
+          <div class="label">Texto a revisar</div>
+          <textarea id="input-text" class="writer" placeholder="Escribe o pega aquí el texto que quieres revisar…" spellcheck="false"></textarea>
+          <div class="counter-row">
+            <span class="hint" id="input-status"></span>
+            <span class="counter" id="input-counter">0 / 10 000</span>
+          </div>
+        </div>
+        <footer class="foot">
+          <button class="ghost" id="btn-write-cancel">Cancelar</button>
+          <button class="primary" id="btn-write-review">Revisar <kbd>Ctrl+Enter</kbd></button>
+        </footer>
+      </section>
+
+      <!-- Vista de configuración -->
+      <section id="view-settings" class="view" hidden>
+        <div class="body">
+          <div class="label">Claves de API</div>
+          <p class="hint">Se guardan cifradas con tu cuenta de Windows: las pegas una vez y no se vuelven a pedir. Déjalas en blanco para conservar la que ya tienes.</p>
+
+          <div class="provider" data-p="groq">
+            <div class="prow"><span class="pname">Groq</span><span class="pill" data-pill="groq">—</span></div>
+            <div class="pdetail" data-detail="groq"></div>
+            <div class="pmask" data-mask="groq">sin clave guardada</div>
+            <div class="pinput">
+              <input type="password" id="key-groq" autocomplete="off" placeholder="Pegar nueva clave">
+              <a href="https://console.groq.com/keys" target="_blank" rel="noopener">Obtener</a>
+            </div>
+          </div>
+
+          <div class="provider" data-p="gemini">
+            <div class="prow"><span class="pname">Gemini</span><span class="pill" data-pill="gemini">—</span></div>
+            <div class="pdetail" data-detail="gemini"></div>
+            <div class="pmask" data-mask="gemini">sin clave guardada</div>
+            <div class="pinput">
+              <input type="password" id="key-gemini" autocomplete="off" placeholder="Pegar nueva clave">
+              <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">Obtener</a>
+            </div>
+          </div>
+
+          <div class="provider" data-p="nvidia">
+            <div class="prow"><span class="pname">NVIDIA</span><span class="pill" data-pill="nvidia">—</span></div>
+            <div class="pdetail" data-detail="nvidia"></div>
+            <div class="pmask" data-mask="nvidia">sin clave guardada</div>
+            <div class="pinput">
+              <input type="password" id="key-nvidia" autocomplete="off" placeholder="Pegar nueva clave">
+              <a href="https://build.nvidia.com" target="_blank" rel="noopener">Obtener</a>
+            </div>
+          </div>
+
+          <div class="provider" data-p="kilo">
+            <div class="prow"><span class="pname">Kilo</span><span class="pill" data-pill="kilo">—</span></div>
+            <div class="pdetail" data-detail="kilo">Respaldo gratuito; funciona sin clave.</div>
+          </div>
+
+          <div class="provider" data-p="llm7">
+            <div class="prow"><span class="pname">LLM7</span><span class="pill" data-pill="llm7">—</span></div>
+            <div class="pdetail" data-detail="llm7">Respaldo gratuito; funciona sin clave.</div>
+          </div>
+
+          <div class="actions">
+            <button class="ghost" id="btn-test">Probar conexiones</button>
+          </div>
+          <p class="hint" id="saved" hidden></p>
+        </div>
+        <footer class="foot">
+          <button class="ghost" id="btn-back">Volver</button>
+          <button class="primary" id="btn-save">Guardar claves</button>
+        </footer>
+      </section>
+
+      <!-- Vista de ayuda -->
+      <section id="view-help" class="view" hidden>
+        <div class="body help">
+          <div class="label">Cómo funciona</div>
+
+          <ol class="steps">
+            <li><strong>Selecciona el texto</strong> en cualquier app: Word, el navegador, el correo. Si no seleccionas nada, se toma todo el campo activo.</li>
+            <li><strong>Pulsa Ctrl+Alt+G.</strong> El globo aparece junto al cursor con una primera revisión.</li>
+            <li><strong>Elige un modo</strong>: Corregir, Científico, Formal, Reescribir, Conciso, Casual o Traducir. Traducir hace una traducción interpretativa: español a inglés y cualquier otro idioma a español.</li>
+            <li><strong>Otro párrafo:</strong> selecciona el nuevo texto en Word (o en cualquier app) y vuelve a pulsar Ctrl+Alt+G. No hace falta cerrar el globo antes.</li>
+            <li><strong>Revisa los cambios.</strong> Lo tachado en rojo se elimina y lo verde se añade. Cada cambio explica su motivo.</li>
+            <li><strong>Aplicar</strong> reemplaza el texto en la app original (Ctrl+Enter). <strong>Copiar</strong> lo deja en el portapapeles. <strong>Descartar</strong> cierra sin cambios.</li>
+          </ol>
+
+          <div class="label">Por dentro</div>
+          <p class="hint">Gemini redacta la corrección. Groq (gpt-oss-120b y Qwen) propone la suya, y un revisor combina las tres en un consenso: solo entra un cambio si varios modelos lo proponen o si es claramente correcto.</p>
+
+          <div class="label">Privacidad</div>
+          <p class="hint">El texto que revisas se envía a Gemini y Groq. En el nivel gratuito de Gemini, Google puede usar esos datos para mejorar sus productos. No revises información confidencial sin evaluarlo antes.</p>
+
+          <div class="label">Controles</div>
+          <ul class="keys">
+            <li><kbd>Ctrl+Alt+G</kbd> abrir el globo</li>
+            <li><kbd>Ctrl+Enter</kbd> aplicar la propuesta</li>
+            <li><kbd>Esc</kbd> cerrar, o volver si estás en una subpantalla</li>
+            <li>Arrastra la barra superior para <strong>mover</strong> el globo</li>
+            <li>Arrastra la esquina inferior derecha para <strong>cambiar el tamaño</strong></li>
+            <li><strong>—</strong> lo reduce a un icono flotante que también puedes mover; haz clic en él para volver</li>
+            <li>Desde la bandeja del sistema puedes mostrarlo o configurar las claves</li>
+          </ul>
+        </div>
+        <footer class="foot">
+          <button class="primary" id="btn-help-back">Entendido</button>
+        </footer>
+      </section>
+    </div>
+
+    <div class="grip" id="grip" title="Arrastra para cambiar el tamaño" aria-hidden="true"></div>
+
+    <button class="expand" id="expand" title="Mostrar Grammar Reviewer" aria-label="Mostrar Grammar Reviewer" hidden>
+      <span class="mark" aria-hidden="true"></span>
+    </button>
+
+  </main>
+  <script src="app.js"></script>
+</body>
+</html>

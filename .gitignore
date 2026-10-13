@@ -1,0 +1,14 @@
+# Compilación
+bin/
+obj/
+publish/
+installer/out/
+release/
+*.user
+.vs/
+
+# Datos locales y claves (nunca subir)
+*.env
+keys.bin
+prefs.json
+*.log
