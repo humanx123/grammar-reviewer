@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Grammar Reviewer</string>
+    <string name="a11y_description">Lee el texto del campo que estás editando para que Grammar Reviewer pueda revisarlo o traducirlo. Solo se usa cuando pulsas el globo; no guarda ni envía nada por sí solo.</string>
+</resources>

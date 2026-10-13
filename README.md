@@ -22,6 +22,14 @@ Sitio del proyecto: https://humanx123.github.io/grammar-reviewer/
 2. Ejecútalo. Se instala por usuario, sin permisos de administrador.
 3. Requiere Microsoft Edge WebView2 Runtime (Windows 10/11 normalmente ya lo tienen).
 
+### Android (globo flotante)
+
+1. Descarga `grammar-reviewer-android.apk` desde https://humanx123.github.io/grammar-reviewer/ y acepta instalar desde esa fuente.
+2. Abre la app y activa **Mostrar sobre otras apps** y el **lector de texto** (Accesibilidad).
+3. Pulsa **Mostrar globo**. El círculo "GR" se queda a un lado de la pantalla; tócalo sobre cualquier app para revisar o traducir el campo que editas.
+
+El lector de texto solo se usa cuando pulsas el globo. Requiere Android 8.0 o superior. Código en `android/`.
+
 ### Linux (línea de comandos)
 
 La aplicación de escritorio con globo flotante es solo para Windows por ahora. En Linux está disponible la CLI:

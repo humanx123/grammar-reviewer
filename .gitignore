@@ -12,3 +12,9 @@ release/
 keys.bin
 prefs.json
 *.log
+
+# Android
+android/local.properties
+android/.gradle/
+android/**/build/
+android/.idea/
