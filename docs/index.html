@@ -115,7 +115,15 @@
     .donate .fine { font-size: 12.5px; color: var(--ink-soft); margin-top: 14px; }
     .crypto { margin-top: 22px; border: 1px solid var(--rule); border-radius: 14px; padding: 14px; background: var(--paper); }
     .crypto-title { margin: 0 0 10px; font-size: 12px; text-transform: uppercase; letter-spacing: .6px; color: var(--ink-soft); }
-    .crypto img { display: block; width: 100%; max-width: 360px; margin: 0 auto; border-radius: 10px; }
+    .wallets-grid { display: grid; }
+    .wallet { display: grid; gap: 10px; justify-items: center; text-align: center; padding: 14px 0; border-top: 1px solid var(--rule); }
+    .wallet:first-of-type { border-top: 0; }
+    .wallet-head { font-size: 14px; }
+    .wallet img { width: 170px; height: 170px; background: #fff; padding: 8px; border-radius: 10px; }
+    .addr { display: block; max-width: 100%; font-family: var(--mono); font-size: 11.5px; line-height: 1.5; word-break: break-all; color: var(--ink); background: var(--paper-2); border: 1px solid var(--rule); border-radius: 10px; padding: 10px 12px; }
+    .copy { border: 1px solid var(--rule); background: var(--paper); color: var(--ink); border-radius: 9px; padding: 8px 14px; font: inherit; font-size: 13px; cursor: pointer; transition: border-color .2s, transform .15s; }
+    .copy:hover { border-color: var(--gold); transform: translateY(-1px); }
+    .copy.done { border-color: var(--ok); color: var(--ok); }
 
     /* Privacidad / pie */
     .privacy { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
@@ -284,7 +292,18 @@
           <p class="fine">Los enlaces apuntan a GitHub Sponsors. Puedes cambiarlos por tu plataforma preferida.</p>
           <div class="crypto">
             <p class="crypto-title">Donar con cripto</p>
-            <img src="img/donar.jpeg" alt="Direcciones y códigos QR para donar en Bitcoin, Monero y Hyperliquid" loading="lazy">
+            <div class="wallet">
+              <div class="wallet-head"><strong>Bitcoin (BTC)</strong></div>
+              <img src="img/qr-btc.png" alt="Código QR de la dirección de Bitcoin" width="330" height="330" loading="lazy">
+              <code class="addr">bc1qd9j45f4t0jwyhjhqh2kvz2cr7k8xye460rr2y7</code>
+              <button class="copy" data-copy="bc1qd9j45f4t0jwyhjhqh2kvz2cr7k8xye460rr2y7">Copiar dirección</button>
+            </div>
+            <div class="wallet">
+              <div class="wallet-head"><strong>Monero (XMR)</strong></div>
+              <img src="img/qr-xmr.png" alt="Código QR de la dirección de Monero" width="450" height="450" loading="lazy">
+              <code class="addr">447gTj6Hg6gaAEAUmjqfhqDZr1PziUTvbT4LYLpmLVnTNVFK6cqeqPfh6P4neMKLWX5jDXAr94fWHacJwDvjmCzBBH8wPBt</code>
+              <button class="copy" data-copy="447gTj6Hg6gaAEAUmjqfhqDZr1PziUTvbT4LYLpmLVnTNVFK6cqeqPfh6P4neMKLWX5jDXAr94fWHacJwDvjmCzBBH8wPBt">Copiar dirección</button>
+            </div>
           </div>
         </div>
       </div>
@@ -309,6 +328,29 @@
       <span><a href="https://github.com/humanx123/grammar-reviewer/issues">Reportar un problema</a></span>
     </div>
   </footer>
+
+  <script>
+    // Copiar direcciones de donación al portapapeles.
+    document.querySelectorAll("button.copy").forEach((btn) => {
+      btn.addEventListener("click", async () => {
+        const text = btn.dataset.copy;
+        try {
+          await navigator.clipboard.writeText(text);
+        } catch (e) {
+          const area = document.createElement("textarea");
+          area.value = text;
+          document.body.append(area);
+          area.select();
+          document.execCommand("copy");
+          area.remove();
+        }
+        const label = btn.textContent;
+        btn.textContent = "¡Copiada!";
+        btn.classList.add("done");
+        setTimeout(() => { btn.textContent = label; btn.classList.remove("done"); }, 1600);
+      });
+    });
+  </script>
 
   <script type="module">
     // Animación con motion (npm: motion). Si no carga, la página se ve igual, sin animar.
