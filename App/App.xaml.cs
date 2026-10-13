@@ -39,10 +39,10 @@ public partial class App : Application
         bool registered = Native.RegisterHotKey(handle, HotkeyId, Native.ModControl | Native.ModAlt | Native.ModNoRepeat, 0x47);
         BuildTray(registered);
 
-        if (e.Args.Contains("--settings"))
-            Dispatcher.BeginInvoke(new Action(_bubble.OpenSettings), System.Windows.Threading.DispatcherPriority.Background);
-        else if (e.Args.Contains("--help"))
-            Dispatcher.BeginInvoke(new Action(_bubble.OpenHelp), System.Windows.Threading.DispatcherPriority.Background);
+        var view = e.Args.FirstOrDefault(a => a.StartsWith("--view=", StringComparison.Ordinal))?["--view=".Length..]
+            ?? (e.Args.Contains("--settings") ? "settings" : e.Args.Contains("--help") ? "help" : null);
+        if (view is not null)
+            Dispatcher.BeginInvoke(new Action(() => _bubble.OpenView(view)), System.Windows.Threading.DispatcherPriority.Background);
     }
 
     private IntPtr WndProc(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)

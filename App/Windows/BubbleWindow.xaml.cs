@@ -159,6 +159,17 @@ public partial class BubbleWindow : Window
             _ = RunAsync(CorrectionMode.Correct);
     }
 
+    public void OpenView(string view)
+    {
+        switch (view)
+        {
+            case "settings": OpenSettings(); break;
+            case "help": OpenHelp(); break;
+            case "write": OpenWriter(); break;
+            case "chat": OpenChat(); break;
+        }
+    }
+
     public void OpenHelp()
     {
         SetCompact(false);

@@ -3,98 +3,335 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Grammar Reviewer</title>
-  <meta name="description" content="Corrector de gramática, estilo y traducción con IA para Windows y Linux.">
+  <title>Grammar Reviewer · Corrección y traducción con IA</title>
+  <meta name="description" content="Corrector de gramática, estilo y traducción con IA para Windows y Linux. Modelos gratuitos, revisión por cambios y chat.">
+  <meta property="og:title" content="Grammar Reviewer">
+  <meta property="og:description" content="Corrige, traduce y mejora tu redacción con IA, sobre cualquier texto que escribas.">
+  <meta property="og:type" content="website">
   <style>
     :root {
-      --paper: #fbfaf6; --ink: #1d2230; --ink-soft: #5b6171; --rule: #e4e1d8;
-      --accent: #2c3e6b; --accent-ink: #fff; --serif: Georgia, "Times New Roman", serif;
-      --sans: "Segoe UI", system-ui, -apple-system, sans-serif; --mono: Consolas, "Cascadia Mono", monospace;
+      --paper: #fbfaf6; --paper-2: #f3f1ea; --ink: #1d2230; --ink-soft: #5b6171; --rule: #e4e1d8;
+      --accent: #2c3e6b; --accent-2: #4a5fa0; --gold: #c9b98a; --ok: #2fb36b; --bad: #d6453d; --on-accent: #fff;
+      --serif: Georgia, "Times New Roman", serif;
+      --sans: "Segoe UI Variable", "Segoe UI", system-ui, -apple-system, sans-serif;
+      --mono: Consolas, "Cascadia Mono", monospace;
+      --shadow: 0 30px 80px -20px rgba(20, 24, 40, .28), 0 8px 20px -8px rgba(20, 24, 40, .14);
     }
     @media (prefers-color-scheme: dark) {
-      :root:not([data-theme="light"]) { --paper: #1c1f27; --ink: #ece9e1; --ink-soft: #9ba1b0; --rule: #2f3440; --accent: #c9b98a; --accent-ink: #1c1f27; }
+      :root:not([data-theme="light"]) {
+        --paper: #161922; --paper-2: #1c202b; --ink: #ece9e1; --ink-soft: #9ba1b0; --rule: #2f3440; --accent: #c9b98a; --accent-2: #8a9bd0; --on-accent: #1c1f27;
+        --shadow: 0 30px 80px -20px rgba(0, 0, 0, .6);
+      }
     }
     * { box-sizing: border-box; }
-    body { margin: 0; background: var(--paper); color: var(--ink); font-family: var(--sans); line-height: 1.6; -webkit-font-smoothing: antialiased; }
-    main { max-width: 860px; margin: 0 auto; padding: 56px 24px 72px; }
-    header { display: flex; align-items: center; gap: 14px; }
-    .mark { width: 40px; height: 40px; border-radius: 11px; background: linear-gradient(135deg, #2c3e6b, #4a5fa0); display: grid; place-items: center; }
-    .mark svg { width: 24px; height: 24px; }
-    h1 { font-family: var(--serif); font-size: 34px; margin: 0; letter-spacing: .2px; }
-    .lead { font-size: 18px; color: var(--ink-soft); margin: 20px 0 32px; max-width: 640px; }
-    h2 { font-family: var(--serif); font-size: 22px; margin: 44px 0 12px; border-bottom: 1px solid var(--rule); padding-bottom: 8px; }
-    .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; margin-top: 8px; }
-    .card { border: 1px solid var(--rule); border-radius: 12px; padding: 18px; background: color-mix(in srgb, var(--paper) 96%, var(--ink)); }
-    .card h3 { margin: 0 0 6px; font-size: 15px; }
-    .card p { margin: 0; color: var(--ink-soft); font-size: 14px; }
-    .downloads { display: grid; gap: 12px; margin-top: 8px; }
-    .dl { display: flex; justify-content: space-between; align-items: center; gap: 16px; border: 1px solid var(--rule); border-radius: 12px; padding: 16px 18px; text-decoration: none; color: var(--ink); }
-    .dl:hover { border-color: var(--accent); }
-    .dl strong { display: block; font-size: 15px; }
-    .dl span { color: var(--ink-soft); font-size: 13px; }
-    .btn { background: var(--accent); color: var(--accent-ink); border-radius: 9px; padding: 9px 16px; font-size: 14px; font-weight: 600; white-space: nowrap; }
-    code, pre { font-family: var(--mono); font-size: 13px; }
-    pre { background: color-mix(in srgb, var(--paper) 92%, var(--ink)); border: 1px solid var(--rule); border-radius: 10px; padding: 14px 16px; overflow-x: auto; }
-    kbd { font-family: var(--mono); font-size: 12px; border: 1px solid var(--rule); border-bottom-width: 2px; border-radius: 5px; padding: 1px 6px; }
-    .note { font-size: 14px; color: var(--ink-soft); border-left: 3px solid var(--rule); padding-left: 12px; margin-top: 14px; }
-    footer { margin-top: 56px; font-size: 13px; color: var(--ink-soft); border-top: 1px solid var(--rule); padding-top: 18px; }
+    html { scroll-behavior: smooth; }
+    body { margin: 0; background: var(--paper); color: var(--ink); font-family: var(--sans); line-height: 1.6; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+    a { color: inherit; }
+    .wrap { max-width: 1080px; margin: 0 auto; padding: 0 24px; }
+
+    /* Cabecera */
+    nav.top { position: sticky; top: 0; z-index: 10; backdrop-filter: blur(12px); background: color-mix(in srgb, var(--paper) 82%, transparent); border-bottom: 1px solid var(--rule); }
+    nav.top .wrap { display: flex; align-items: center; justify-content: space-between; height: 64px; }
+    .brand { display: flex; align-items: center; gap: 10px; font-family: var(--serif); font-weight: 600; font-size: 17px; text-decoration: none; }
+    .mark { width: 30px; height: 30px; border-radius: 9px; background: linear-gradient(135deg, var(--accent), var(--accent-2)); display: grid; place-items: center; }
+    .mark svg { width: 18px; height: 18px; }
+    .links { display: flex; gap: 22px; font-size: 14px; }
+    .links a { text-decoration: none; color: var(--ink-soft); }
+    .links a:hover { color: var(--ink); }
+    .links a.btn { color: var(--on-accent); }
+    .btn { display: inline-flex; align-items: center; gap: 8px; border-radius: 10px; padding: 11px 18px; font-size: 14.5px; font-weight: 600; text-decoration: none; background: var(--accent); color: var(--on-accent); transition: transform .15s ease, box-shadow .2s ease, filter .2s; box-shadow: 0 6px 18px -6px color-mix(in srgb, var(--accent) 70%, transparent); }
+    .btn:hover { transform: translateY(-2px); filter: brightness(1.07); box-shadow: 0 12px 26px -8px color-mix(in srgb, var(--accent) 75%, transparent); }
+    .btn.ghost { background: transparent; color: var(--ink); border: 1px solid var(--rule); box-shadow: none; }
+    .btn.gold { background: var(--gold); color: #1c1f27; }
+
+    /* Hero */
+    .hero { position: relative; padding: 84px 0 56px; overflow: hidden; }
+    .hero::before { content: ""; position: absolute; inset: -20% -10% auto; height: 80%; background: radial-gradient(60% 60% at 50% 0%, color-mix(in srgb, var(--accent-2) 26%, transparent), transparent 70%); z-index: -1; animation: drift 14s ease-in-out infinite alternate; }
+    @keyframes drift { to { transform: translate3d(3%, 4%, 0) scale(1.06); } }
+    .hero-grid { display: grid; grid-template-columns: 1.05fr .95fr; gap: 48px; align-items: center; }
+    .eyebrow { display: inline-flex; align-items: center; gap: 8px; font-size: 12.5px; letter-spacing: .6px; text-transform: uppercase; color: var(--ink-soft); border: 1px solid var(--rule); border-radius: 999px; padding: 5px 12px; }
+    .eyebrow i { width: 7px; height: 7px; border-radius: 50%; background: var(--ok); box-shadow: 0 0 0 4px rgba(47, 179, 107, .18); }
+    h1 { font-family: var(--serif); font-weight: 600; font-size: clamp(38px, 5.2vw, 60px); line-height: 1.06; margin: 18px 0 16px; letter-spacing: -.5px; }
+    h1 .word { display: inline-block; }
+    .hero p.lead { font-size: 18px; color: var(--ink-soft); max-width: 540px; margin: 0 0 28px; }
+    .cta { display: flex; gap: 12px; flex-wrap: wrap; }
+    .kbd { font-family: var(--mono); font-size: 12px; border: 1px solid currentColor; border-bottom-width: 2px; border-radius: 5px; padding: 1px 6px; opacity: .8; }
+    .hero-shot { position: relative; justify-self: center; }
+    .hero-shot .frame { border-radius: 18px; background: var(--paper-2); border: 1px solid var(--rule); padding: 18px; box-shadow: var(--shadow); }
+    .hero-shot img { display: block; width: 100%; max-width: 330px; margin: 0 auto; border-radius: 12px; }
+    .float { position: absolute; background: var(--paper); border: 1px solid var(--rule); border-radius: 12px; padding: 10px 14px; font-size: 13px; box-shadow: var(--shadow); white-space: nowrap; }
+    .float.a { left: -26px; top: 210px; }
+    .float.b { right: -22px; bottom: 80px; }
+    .float b { font-family: var(--serif); font-size: 15px; }
+    .del { color: var(--bad); text-decoration: line-through; }
+    .ins { color: var(--ok); }
+
+    /* Secciones */
+    section { padding: 76px 0; }
+    .eyebrow.center { margin-bottom: 14px; }
+    h2 { font-family: var(--serif); font-weight: 600; font-size: clamp(28px, 3.4vw, 40px); line-height: 1.15; margin: 0 0 12px; letter-spacing: -.3px; }
+    .sub { color: var(--ink-soft); font-size: 17px; max-width: 620px; margin: 0 0 40px; }
+    .grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+    .grid4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+    .card { background: var(--paper-2); border: 1px solid var(--rule); border-radius: 16px; padding: 24px; transition: transform .25s ease, border-color .25s, box-shadow .25s; }
+    .card:hover { transform: translateY(-4px); border-color: color-mix(in srgb, var(--accent-2) 60%, var(--rule)); box-shadow: var(--shadow); }
+    .card .ico { width: 38px; height: 38px; border-radius: 10px; display: grid; place-items: center; background: color-mix(in srgb, var(--accent-2) 16%, transparent); margin-bottom: 14px; font-size: 18px; }
+    .card h3 { margin: 0 0 6px; font-size: 16.5px; }
+    .card p { margin: 0; color: var(--ink-soft); font-size: 14.5px; }
+    .step-n { font-family: var(--mono); font-size: 13px; color: var(--accent-2); margin-bottom: 6px; }
+
+    /* Capturas */
+    .shots { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; align-items: start; }
+    .shot { margin: 0; }
+    .shot .frame { border-radius: 16px; background: var(--paper-2); border: 1px solid var(--rule); padding: 12px; box-shadow: 0 16px 40px -18px rgba(20, 24, 40, .3); transition: transform .3s ease; }
+    .shot:hover .frame { transform: translateY(-6px) rotate(-.4deg); }
+    .shot img { display: block; width: 100%; height: auto; border-radius: 10px; }
+    .shot figcaption { font-size: 13.5px; color: var(--ink-soft); margin-top: 12px; text-align: center; }
+    .shot figcaption b { color: var(--ink); font-weight: 600; }
+
+    /* Modelos */
+    .models { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 8px; }
+    .chip { border: 1px solid var(--rule); border-radius: 999px; padding: 7px 14px; font-size: 13.5px; background: var(--paper); }
+    .chip em { font-style: normal; color: var(--ink-soft); }
+
+    /* Descargas */
+    .downloads { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+    .dl { display: flex; flex-direction: column; gap: 14px; border: 1px solid var(--rule); border-radius: 16px; padding: 24px; text-decoration: none; background: var(--paper-2); transition: transform .25s ease, border-color .25s; }
+    .dl:hover { transform: translateY(-4px); border-color: var(--accent-2); }
+    .dl strong { font-size: 16px; }
+    .dl span { color: var(--ink-soft); font-size: 14px; flex: 1; }
+    .dl .go { color: var(--accent); font-weight: 600; font-size: 14.5px; }
+    .dl.primary { background: linear-gradient(160deg, var(--accent), var(--accent-2)); color: var(--on-accent); border-color: transparent; }
+    .dl.primary span, .dl.primary .go { color: var(--on-accent); opacity: .85; }
+    .note { font-size: 13.5px; color: var(--ink-soft); margin-top: 16px; }
+
+    /* Donar */
+    .donate { border: 1px solid var(--rule); border-radius: 22px; padding: 44px; background: radial-gradient(80% 120% at 100% 0%, color-mix(in srgb, var(--gold) 22%, transparent), transparent 60%), var(--paper-2); display: grid; grid-template-columns: 1.1fr .9fr; gap: 36px; align-items: center; }
+    .donate p { color: var(--ink-soft); margin: 0 0 14px; }
+    .amounts { display: flex; gap: 10px; flex-wrap: wrap; }
+    .amounts a { border: 1px solid var(--rule); border-radius: 12px; padding: 12px 16px; text-decoration: none; font-weight: 600; background: var(--paper); transition: transform .15s, border-color .2s; }
+    .amounts a:hover { transform: translateY(-2px); border-color: var(--gold); }
+    .amounts small { display: block; font-weight: 400; color: var(--ink-soft); font-size: 12px; }
+    .donate .fine { font-size: 12.5px; color: var(--ink-soft); margin-top: 14px; }
+
+    /* Privacidad / pie */
+    .privacy { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+    footer { border-top: 1px solid var(--rule); padding: 32px 0 48px; color: var(--ink-soft); font-size: 14px; }
+    footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 14px; }
     footer a { color: var(--accent); }
+
+    /* Animación inicial sin JS: todo visible; con motion se anima. */
+    .reveal { will-change: transform, opacity; }
+    .bar { position: fixed; left: 0; top: 0; height: 2px; width: 100%; transform-origin: 0 50%; transform: scaleX(0); background: linear-gradient(90deg, var(--accent), var(--gold)); z-index: 20; }
+
+    @media (max-width: 900px) {
+      .hero-grid, .donate { grid-template-columns: 1fr; }
+      .grid3, .downloads, .privacy { grid-template-columns: 1fr; }
+      .grid4 { grid-template-columns: repeat(2, 1fr); }
+      .shots { grid-template-columns: repeat(2, 1fr); }
+      .float { display: none; }
+      .links a:not(.btn) { display: none; }
+      .donate { padding: 28px; }
+    }
+    @media (max-width: 520px) {
+      .grid4, .shots { grid-template-columns: 1fr; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .hero::before { animation: none; }
+      html { scroll-behavior: auto; }
+    }
   </style>
 </head>
 <body>
-<main>
-  <header>
-    <div class="mark" aria-hidden="true">
-      <svg viewBox="0 0 24 24"><path d="M4 5h16v11H9l-5 4V5Z" fill="none" stroke="#fff" stroke-width="1.8" stroke-linejoin="round"/><path d="M8.5 9.5l2.2 2.2 4.3-4.3" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  <div class="bar" id="bar" aria-hidden="true"></div>
+
+  <nav class="top">
+    <div class="wrap">
+      <a class="brand" href="#inicio">
+        <span class="mark" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 5h16v11H9l-5 4V5Z" fill="none" stroke="#fff" stroke-width="1.8" stroke-linejoin="round"/><path d="M8.5 9.5l2.2 2.2 4.3-4.3" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+        Grammar Reviewer
+      </a>
+      <div class="links">
+        <a href="#funciones">Funciones</a>
+        <a href="#capturas">Capturas</a>
+        <a href="#descargas">Descargas</a>
+        <a href="#apoyar">Apoyar</a>
+        <a class="btn" href="#descargas">Descargar</a>
+      </div>
     </div>
-    <h1>Grammar Reviewer</h1>
+  </nav>
+
+  <header class="hero" id="inicio">
+    <div class="wrap hero-grid">
+      <div>
+        <span class="eyebrow reveal"><i></i> Modelos gratuitos · Windows y Linux</span>
+        <h1 id="headline">Escribe con claridad, en inglés y en español.</h1>
+        <p class="lead reveal">Selecciona un texto en Word, el navegador o el correo y pulsa <span class="kbd">Ctrl+Alt+G</span>. Un globo aparece con correcciones explicadas, traducción interpretativa y un chat con los modelos.</p>
+        <div class="cta reveal">
+          <a class="btn" href="#descargas">Descargar para Windows</a>
+          <a class="btn ghost" href="#capturas">Ver la app</a>
+        </div>
+      </div>
+      <div class="hero-shot reveal">
+        <div class="float a"><span class="del">the results was</span> <span class="ins">the results were</span></div>
+        <div class="frame"><img src="img/write.png" alt="Grammar Reviewer en la vista para escribir texto"></div>
+        <div class="float b">Traducción: <b>“I felt like my world was falling apart.”</b></div>
+      </div>
+    </div>
   </header>
 
-  <p class="lead">Un corrector de gramática, estilo y traducción con IA que aparece sobre el texto que estás escribiendo. Pensado para redacción académica en inglés y español, con modelos gratuitos.</p>
+  <section id="funciones">
+    <div class="wrap">
+      <span class="eyebrow center reveal">Funciones</span>
+      <h2 class="reveal">Todo lo que necesitas para redactar mejor</h2>
+      <p class="sub reveal">Corrección, estilo, traducción y conversación en una sola herramienta que se abre donde estás escribiendo.</p>
+      <div class="grid3">
+        <div class="card reveal"><div class="ico">✍️</div><h3>Corrige y explica</h3><p>Gramática, ortografía y claridad. Cada cambio viene con su motivo, y tú decides cuál aceptar o rechazar.</p></div>
+        <div class="card reveal"><div class="ico">🔬</div><h3>Estilo científico</h3><p>Registro académico, tiempos verbales correctos y lenguaje de incertidumbre. Las cifras, estadísticos y citas no se alteran.</p></div>
+        <div class="card reveal"><div class="ico">🌐</div><h3>Traducción interpretativa</h3><p>Transmite el sentido y el tono en lugar de traducir palabra por palabra. Español a inglés y viceversa.</p></div>
+        <div class="card reveal"><div class="ico">💬</div><h3>Chat con los modelos</h3><p>Pregunta por expresiones, estilo o gramática. Copia cualquier respuesta con un clic.</p></div>
+        <div class="card reveal"><div class="ico">⚡</div><h3>Varios modelos</h3><p>Gemini, Groq, NVIDIA, Kilo y LLM7. Si uno llega a su límite gratuito, la app usa el siguiente sin que hagas nada.</p></div>
+        <div class="card reveal"><div class="ico">🔐</div><h3>Tus claves, seguras</h3><p>Se guardan cifradas en tu equipo y nunca se piden de nuevo. Un semáforo te indica si cada servicio funciona.</p></div>
+      </div>
+    </div>
+  </section>
 
-  <h2>Descargas</h2>
-  <div class="downloads">
-    <a class="dl" href="https://github.com/humanx123/grammar-reviewer/releases/latest/download/GrammarReviewer-Setup-1.0.0.exe">
-      <div><strong>Windows: aplicación completa</strong><span>Globo flotante con Ctrl+Alt+G. Instalador de un clic, sin permisos de administrador.</span></div>
-      <span class="btn">Descargar .exe</span>
-    </a>
-    <a class="dl" href="https://github.com/humanx123/grammar-reviewer/releases/latest/download/grammar-reviewer-cli-linux-x64.tar.gz">
-      <div><strong>Linux: línea de comandos</strong><span>Revisión, traducción y chat desde la terminal.</span></div>
-      <span class="btn">Descargar .tar.gz</span>
-    </a>
-    <a class="dl" href="https://github.com/humanx123/grammar-reviewer/releases/latest/download/grammar-reviewer-cli-windows-x64.zip">
-      <div><strong>Windows: línea de comandos</strong><span>La misma CLI para Windows, en un solo archivo.</span></div>
-      <span class="btn">Descargar .zip</span>
-    </a>
-  </div>
-  <p class="note">Todas las versiones están en <a href="https://github.com/humanx123/grammar-reviewer/releases">Releases</a>. El código fuente y la guía de compilación están en el <a href="https://github.com/humanx123/grammar-reviewer">repositorio</a>.</p>
+  <section id="como" style="padding-top:0">
+    <div class="wrap">
+      <span class="eyebrow center reveal">Cómo funciona</span>
+      <h2 class="reveal">Tres pasos, sin cambiar de app</h2>
+      <div class="grid3" style="margin-top:32px">
+        <div class="card reveal"><div class="step-n">01</div><h3>Selecciona</h3><p>Marca el párrafo en Word, en el navegador o en el correo.</p></div>
+        <div class="card reveal"><div class="step-n">02</div><h3>Pulsa Ctrl+Alt+G</h3><p>El globo aparece junto al cursor con la primera revisión lista.</p></div>
+        <div class="card reveal"><div class="step-n">03</div><h3>Aplica</h3><p>Acepta los cambios que quieras y pulsa Aplicar: el texto se reemplaza en la app original.</p></div>
+      </div>
+    </div>
+  </section>
 
-  <h2>Qué hace</h2>
-  <div class="cards">
-    <div class="card"><h3>Corregir y explicar</h3><p>Gramática, ortografía y claridad, con el motivo de cada cambio. Aceptas o rechazas cada uno.</p></div>
-    <div class="card"><h3>Estilo científico</h3><p>Registro académico, tiempos verbales correctos y lenguaje de incertidumbre sin alterar cifras ni citas.</p></div>
-    <div class="card"><h3>Traducción interpretativa</h3><p>Transmite el sentido y el tono, no palabra por palabra. Español a inglés y viceversa.</p></div>
-    <div class="card"><h3>Chat con los modelos</h3><p>Pregunta sobre redacción, estilo o expresiones. Copia cualquier respuesta con un clic.</p></div>
-  </div>
+  <section id="capturas">
+    <div class="wrap">
+      <span class="eyebrow center reveal">Capturas reales</span>
+      <h2 class="reveal">Así se ve la app</h2>
+      <p class="sub reveal">Capturas tomadas de la aplicación en Windows, sin editar.</p>
+      <div class="shots">
+        <figure class="shot reveal"><div class="frame"><img src="img/write.png" alt="Vista para escribir o pegar texto" loading="lazy"></div><figcaption><b>Escribe o pega</b><br>Hasta 10 000 caracteres</figcaption></figure>
+        <figure class="shot reveal"><div class="frame"><img src="img/help.png" alt="Ayuda de la aplicación" loading="lazy"></div><figcaption><b>Ayuda integrada</b><br>Atajos y controles</figcaption></figure>
+        <figure class="shot reveal"><div class="frame"><img src="img/settings.png" alt="Claves de API con semáforo de estado" loading="lazy"></div><figcaption><b>Semáforo de APIs</b><br>Claves guardadas y estado</figcaption></figure>
+        <figure class="shot reveal"><div class="frame"><img src="img/chat.png" alt="Chat con los modelos" loading="lazy"></div><figcaption><b>Chat con los modelos</b><br>Preguntas sobre redacción</figcaption></figure>
+      </div>
+    </div>
+  </section>
 
-  <h2>Cómo empezar</h2>
-  <div class="cards">
-    <div class="card"><h3>1. Selecciona</h3><p>Marca el texto en Word, el navegador o el correo.</p></div>
-    <div class="card"><h3>2. Pulsa <kbd>Ctrl+Alt+G</kbd></h3><p>Aparece el globo junto al cursor con la primera revisión.</p></div>
-    <div class="card"><h3>3. Aplica</h3><p>Elige los cambios que quieres y pulsa Aplicar. El texto se reemplaza en la app original.</p></div>
-  </div>
+  <section id="modelos" style="padding-top:0">
+    <div class="wrap">
+      <span class="eyebrow center reveal">Modelos</span>
+      <h2 class="reveal">Modelos gratuitos, con respaldo automático</h2>
+      <p class="sub reveal">Puedes usar la app sin ninguna clave: los respaldos sin clave siguen funcionando. Con tus propias claves obtienes más límite y mejor calidad.</p>
+      <div class="models reveal">
+        <span class="chip">Gemini <em>· clave gratuita</em></span>
+        <span class="chip">Groq <em>· clave gratuita</em></span>
+        <span class="chip">NVIDIA NIM <em>· clave gratuita</em></span>
+        <span class="chip">Kilo <em>· sin clave</em></span>
+        <span class="chip">LLM7 <em>· sin clave</em></span>
+      </div>
+    </div>
+  </section>
 
-  <h2>Línea de comandos</h2>
-  <pre>./grammar-reviewer-cli Correct "Me and him goes to the store yesterday."
-./grammar-reviewer-cli Translate "Se me cayó el mundo."
-./grammar-reviewer-cli --chat "¿Cómo digo 'ni modo' en inglés?"</pre>
+  <section id="descargas" style="padding-top:0">
+    <div class="wrap">
+      <span class="eyebrow center reveal">Descargas</span>
+      <h2 class="reveal">Instala en tu equipo</h2>
+      <p class="sub reveal">Versión 1.0.0. Todas las versiones están en <a href="https://github.com/humanx123/grammar-reviewer/releases">Releases</a>.</p>
+      <div class="downloads">
+        <a class="dl primary reveal" href="https://github.com/humanx123/grammar-reviewer/releases/latest/download/GrammarReviewer-Setup-1.0.0.exe">
+          <strong>Windows · aplicación completa</strong>
+          <span>Globo flotante con Ctrl+Alt+G, instalador de un clic y sin permisos de administrador.</span>
+          <span class="go">Descargar instalador (.exe) →</span>
+        </a>
+        <a class="dl reveal" href="https://github.com/humanx123/grammar-reviewer/releases/latest/download/grammar-reviewer-cli-linux-x64.tar.gz">
+          <strong>Linux · línea de comandos</strong>
+          <span>Revisión, traducción y chat desde la terminal. Un solo archivo, sin instalar nada más.</span>
+          <span class="go">Descargar .tar.gz →</span>
+        </a>
+        <a class="dl reveal" href="https://github.com/humanx123/grammar-reviewer/releases/latest/download/grammar-reviewer-cli-windows-x64.zip">
+          <strong>Windows · línea de comandos</strong>
+          <span>La misma CLI para Windows, en un solo ejecutable.</span>
+          <span class="go">Descargar .zip →</span>
+        </a>
+      </div>
+      <p class="note reveal">La aplicación con globo flotante es solo para Windows por ahora. Linux tiene la línea de comandos.</p>
+    </div>
+  </section>
 
-  <h2>Privacidad</h2>
-  <p>El texto que revisas se envía a los proveedores de IA que configures. En sus niveles gratuitos, algunos pueden usar esos datos para mejorar sus productos. No envíes información confidencial sin evaluarlo antes. Las claves se guardan en tu equipo: cifradas con tu cuenta en Windows, y con permisos de solo tu usuario en Linux.</p>
+  <section id="apoyar" style="padding-top:0">
+    <div class="wrap">
+      <div class="donate reveal">
+        <div>
+          <span class="eyebrow">Apoyar el proyecto</span>
+          <h2 style="margin-top:14px">Si te ahorra tiempo, invítame un café</h2>
+          <p>Grammar Reviewer es gratuito y de código abierto. Tu aportación ayuda a mantener la app, probar nuevos modelos y sacar nuevas versiones para Linux.</p>
+          <p>Las donaciones son voluntarias y no dan acceso a funciones distintas: todo lo que ves está disponible para todos.</p>
+        </div>
+        <div>
+          <div class="amounts">
+            <a href="https://github.com/sponsors/humanx123" target="_blank" rel="noopener">☕ Un café<small>GitHub Sponsors</small></a>
+            <a href="https://github.com/sponsors/humanx123" target="_blank" rel="noopener">🚀 Apoyo mensual<small>GitHub Sponsors</small></a>
+            <a href="https://github.com/sponsors/humanx123" target="_blank" rel="noopener">⭐ Dar una estrella<small>En el repositorio</small></a>
+          </div>
+          <p class="fine">Los enlaces apuntan a GitHub Sponsors. Puedes cambiarlos por tu plataforma preferida.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="privacidad" style="padding-top:0">
+    <div class="wrap">
+      <span class="eyebrow center reveal">Privacidad</span>
+      <h2 class="reveal">Claro sobre lo que se envía</h2>
+      <div class="privacy" style="margin-top:28px">
+        <div class="card reveal"><div class="ico">📤</div><h3>El texto va a los modelos</h3><p>Lo que revisas se envía a los proveedores de IA que configures. No envíes información confidencial sin evaluarlo.</p></div>
+        <div class="card reveal"><div class="ico">🧾</div><h3>Niveles gratuitos</h3><p>Algunos proveedores gratuitos pueden usar los datos para mejorar sus productos o registrar peticiones.</p></div>
+        <div class="card reveal"><div class="ico">🗝️</div><h3>Claves en tu equipo</h3><p>Se guardan cifradas con tu cuenta de Windows, o con permisos de solo tu usuario en Linux.</p></div>
+      </div>
+    </div>
+  </section>
 
   <footer>
-    Código abierto en <a href="https://github.com/humanx123/grammar-reviewer">GitHub</a>. Licencia pendiente de definir.
+    <div class="wrap">
+      <span>Grammar Reviewer · Código abierto en <a href="https://github.com/humanx123/grammar-reviewer">GitHub</a> · Licencia pendiente de definir</span>
+      <span><a href="https://github.com/humanx123/grammar-reviewer/issues">Reportar un problema</a></span>
+    </div>
   </footer>
-</main>
+
+  <script type="module">
+    // Animación con motion (npm: motion). Si no carga, la página se ve igual, sin animar.
+    const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const bar = document.getElementById("bar");
+    addEventListener("scroll", () => {
+      const max = document.documentElement.scrollHeight - innerHeight;
+      bar.style.transform = `scaleX(${max > 0 ? scrollY / max : 0})`;
+    }, { passive: true });
+
+    if (!reduceMotion) {
+      try {
+        const { animate, inView } = await import("https://cdn.jsdelivr.net/npm/motion@14/+esm");
+
+        // Titular: entrada palabra por palabra
+        const h1 = document.getElementById("headline");
+        const words = h1.textContent.trim().split(" ");
+        h1.innerHTML = words.map((w) => `<span class="word">${w}</span>`).join(" ");
+        document.querySelectorAll(".hero .word").forEach((el, i) => {
+          animate(el, { opacity: [0, 1], transform: ["translateY(18px)", "translateY(0px)"] }, { delay: i * 0.06, duration: 0.6, ease: [0.22, 1, 0.36, 1] });
+        });
+
+        // Elementos reveal al entrar en pantalla
+        inView(".reveal", (el) => {
+          animate(el, { opacity: [0, 1], transform: ["translateY(24px)", "translateY(0px)"] }, { duration: 0.7, ease: [0.22, 1, 0.36, 1] });
+        }, { margin: "0px 0px -8% 0px" });
+      } catch (e) {
+        // Sin motion: los elementos ya están visibles.
+      }
+    }
+  </script>
 </body>
 </html>
