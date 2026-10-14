@@ -23,12 +23,9 @@ jobs:
           NOTES: ${{ github.event.release.body }}
         run: |
           VERSION="${TAG#v}"
-          jq -n --arg v "$VERSION" --arg n "$NOTES" '{
-            notes: $n,
-            android: { version: $v, url: "https://humanx123.github.io/grammar-reviewer/download/grammar-reviewer-android.apk" },
-            desktop: { version: $v, url: "https://github.com/humanx123/grammar-reviewer/releases/latest" },
-            cli:     { version: $v, url: "https://github.com/humanx123/grammar-reviewer/releases/latest" }
-          }' > docs/version.json
+          # Solo cambia la versión de Android; escritorio y CLI conservan la suya hasta publicar sus instaladores.
+          jq --arg v "$VERSION" --arg n "$NOTES" '.notes = $n | .android.version = $v' docs/version.json > docs/version.tmp.json
+          mv docs/version.tmp.json docs/version.json
 
       - name: Copiar el APK de Android a la página
         env:

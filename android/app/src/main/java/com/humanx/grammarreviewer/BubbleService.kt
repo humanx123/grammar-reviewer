@@ -15,6 +15,10 @@ import android.graphics.drawable.GradientDrawable
 import android.os.Build
 import android.os.IBinder
 import android.provider.Settings
+import android.text.Spannable
+import android.text.SpannableStringBuilder
+import android.text.style.ForegroundColorSpan
+import android.text.style.StyleSpan
 import android.view.Gravity
 import android.view.MotionEvent
 import android.view.View
@@ -60,6 +64,7 @@ class BubbleService : Service() {
     private lateinit var windowManager: WindowManager
     private lateinit var bubble: FrameLayout
     private lateinit var bubbleParams: WindowManager.LayoutParams
+    private var bubbleShown = false
     private var panel: LinearLayout? = null
     private var panelParams: WindowManager.LayoutParams? = null
     private var resultView: TextView? = null
@@ -81,7 +86,10 @@ class BubbleService : Service() {
         createBubble()
     }
 
-    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int = START_STICKY
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        showBubble()
+        return START_STICKY
+    }
 
     override fun onDestroy() {
         reviewJob?.cancel()
@@ -175,9 +183,39 @@ class BubbleService : Service() {
             }
         }
 
-        windowManager.addView(bubble, bubbleParams)
-        snapToEdge()
+        showBubble()
     }
+
+    /** Muestra el globo (si estaba oculto) y lo pega al borde. */
+    private fun showBubble() {
+        if (bubbleShown) return
+        windowManager.addView(bubble, bubbleParams)
+        bubbleShown = true
+        snapToEdge()
+        updateNotification("Toca el globo para revisar, traducir o copiar el campo que editas.")
+    }
+
+    /** Oculta el globo y el panel; el servicio sigue vivo hasta que pulses "Ocultar" en la app. */
+    private fun hideBubble() {
+        if (!bubbleShown) return
+        removePanel()
+        runCatching { windowManager.removeView(bubble) }
+        bubbleShown = false
+        updateNotification("Globo oculto. Abre la app y pulsa Mostrar globo para volver a verlo.")
+    }
+
+    private fun updateNotification(text: String) {
+        val manager = getSystemService(NotificationManager::class.java)
+        manager.notify(NOTIFICATION_ID, buildNotification(text))
+    }
+
+    private fun buildNotification(text: String): Notification =
+        Notification.Builder(this, CHANNEL_ID)
+            .setContentTitle("Grammar Reviewer")
+            .setContentText(text)
+            .setSmallIcon(android.R.drawable.ic_menu_edit)
+            .setOngoing(true)
+            .build()
 
     /** Se queda pegado al borde, medio oculto, para no estorbar el texto. */
     private fun snapToEdge() {
@@ -226,10 +264,12 @@ class BubbleService : Service() {
         statusView = TextView(this).apply {
             text = "● Listo"
             setTextColor(Color.parseColor(GOLD))
-            textSize = 12f
+            textSize = 14f
+            typeface = android.graphics.Typeface.DEFAULT_BOLD
             layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
         }
         header.addView(statusView)
+        header.addView(iconButton(R.drawable.ic_hide, "Ocultar globo") { hideBubble() }, dp(40), dp(40))
         header.addView(iconButton(R.drawable.ic_close, "Cerrar") { removePanel(); snapToEdge() }, dp(40), dp(40))
         root.addView(header)
 
@@ -240,7 +280,7 @@ class BubbleService : Service() {
                 setColor(Color.parseColor("#1AFFFFFF"))
             }
             setPadding(dp(12), dp(10), dp(12), dp(10))
-            layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dp(190)).apply {
+            layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dp(130)).apply {
                 topMargin = dp(8)
                 bottomMargin = dp(12)
             }
@@ -277,6 +317,10 @@ class BubbleService : Service() {
         FrameLayout(this).apply {
             contentDescription = description
             isClickable = true
+            setOnLongClickListener {
+                Toast.makeText(this@BubbleService, description, Toast.LENGTH_SHORT).show()
+                true
+            }
             background = GradientDrawable().apply {
                 shape = GradientDrawable.OVAL
                 setColor(Color.parseColor("#33C9B98A"))
@@ -307,7 +351,7 @@ class BubbleService : Service() {
         statusView = null
     }
 
-    private fun setResult(text: String) {
+    private fun setResult(text: CharSequence) {
         resultView?.text = text
     }
 
@@ -349,13 +393,20 @@ class BubbleService : Service() {
         }
     }
 
-    private fun formatResult(result: Result, mode: Mode): String {
+    /** Texto corregido con cada cambio resaltado en verde; las traducciones van sin resaltar. */
+    private fun formatResult(result: Result, mode: Mode): CharSequence {
         if (mode == Mode.Translate) return result.corrected
         if (result.changes.isEmpty()) return result.corrected.ifBlank { "Sin cambios: el texto ya está bien." }
-        val sb = StringBuilder(result.corrected)
-        sb.append("\n\n")
-        result.changes.forEach { c -> sb.append("• ${c.original} → ${c.replacement}\n") }
-        return sb.toString().trimEnd()
+        val sb = SpannableStringBuilder(result.corrected)
+        for (c in result.changes) {
+            if (c.replacement.isEmpty()) continue
+            val start = sb.indexOf(c.replacement)
+            if (start < 0) continue
+            val end = start + c.replacement.length
+            sb.setSpan(ForegroundColorSpan(Color.parseColor("#7CE0A8")), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+            sb.setSpan(StyleSpan(android.graphics.Typeface.BOLD), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+        }
+        return sb
     }
 
     private fun applyResult() {

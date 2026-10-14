@@ -7,7 +7,7 @@ import java.net.HttpURLConnection
 import java.net.URL
 
 /** Versión instalada de esta app. Debe coincidir con versionName en build.gradle.kts. */
-const val APP_VERSION = "1.2.0"
+const val APP_VERSION = "1.2.1"
 
 data class UpdateInfo(val version: String, val url: String, val notes: String)
 

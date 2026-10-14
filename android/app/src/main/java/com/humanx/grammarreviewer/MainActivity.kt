@@ -73,8 +73,6 @@ class MainActivity : Activity() {
             background = gradient("#0F1424", "#1A2340", GradientDrawable.Orientation.TOP_BOTTOM)
         }
 
-        page.addView(header())
-
         updateBanner = LinearLayout(this).apply {
             orientation = LinearLayout.HORIZONTAL
             gravity = Gravity.CENTER_VERTICAL
@@ -90,7 +88,7 @@ class MainActivity : Activity() {
             statusLine = hint("")
             addView(statusLine)
             addView(row(
-                pill("Permiso de superposición") { startActivity(Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:$packageName"))) },
+                pill("Superposición") { startActivity(Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:$packageName"))) },
                 pill("Lector de texto") { startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)) },
             ))
             addView(row(
@@ -152,10 +150,19 @@ class MainActivity : Activity() {
             addView(row(pill("Enviar", primary = true) { sendChat() }))
         }, cardParams(top = 14))
 
-        return ScrollView(this).apply {
+        val outer = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            background = gradient("#0F1424", "#1A2340", GradientDrawable.Orientation.TOP_BOTTOM)
+        }
+        val statusBarId = resources.getIdentifier("status_bar_height", "dimen", "android")
+        val statusBar = if (statusBarId > 0) resources.getDimensionPixelSize(statusBarId) else dp(24)
+        outer.addView(header().apply { setPadding(dp(16), statusBar + dp(8), dp(16), dp(12)) })
+        val scroll = ScrollView(this).apply {
             isFillViewport = true
             addView(page)
         }
+        outer.addView(scroll, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 0, 1f))
+        return outer
     }
 
     private fun header(): View {
