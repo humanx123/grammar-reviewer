@@ -261,8 +261,23 @@ class BubbleService : Service() {
 
         // Cabecera: estado y cerrar
         val header = LinearLayout(this).apply { orientation = LinearLayout.HORIZONTAL; gravity = Gravity.CENTER_VERTICAL }
+        // Icono y nombre: al tocarlos se abre la pantalla principal de la app.
+        val logo = FrameLayout(this).apply {
+            background = GradientDrawable(
+                GradientDrawable.Orientation.TL_BR,
+                intArrayOf(Color.parseColor(GOLD), Color.parseColor("#8E7A45")),
+            ).apply { shape = GradientDrawable.OVAL }
+            addView(ImageView(this@BubbleService).apply {
+                setImageResource(R.drawable.ic_edit)
+                setColorFilter(Color.parseColor("#1C1F27"))
+                setPadding(dp(6), dp(6), dp(6), dp(6))
+            }, FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT))
+            setOnClickListener { openMainApp() }
+        }
+        header.addView(logo, LinearLayout.LayoutParams(dp(30), dp(30)).apply { setMargins(0, 0, dp(8), 0) })
         statusView = TextView(this).apply {
-            text = "● Listo"
+            text = "Grammar Reviewer  ● Listo"
+            setOnClickListener { openMainApp() }
             setTextColor(Color.parseColor(GOLD))
             textSize = 14f
             typeface = android.graphics.Typeface.DEFAULT_BOLD
@@ -356,7 +371,16 @@ class BubbleService : Service() {
     }
 
     private fun setStatus(text: String) {
-        statusView?.text = text
+        statusView?.text = "Grammar Reviewer  $text"
+    }
+
+    /** Cierra el panel y abre la pantalla principal de la app. */
+    private fun openMainApp() {
+        removePanel()
+        snapToEdge()
+        val intent = Intent(this, MainActivity::class.java)
+            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_CLEAR_TOP)
+        startActivity(intent)
     }
 
     private fun runAction(mode: Mode) {

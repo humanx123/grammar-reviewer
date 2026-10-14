@@ -37,11 +37,43 @@ public partial class BubbleWindow : Window
 
     public bool IsCompact => _compact;
 
+    private IntPtr _lastExternalWindow;
+    private readonly System.Windows.Threading.DispatcherTimer _focusWatch = new() { Interval = TimeSpan.FromMilliseconds(250) };
+
     public BubbleWindow()
     {
         InitializeComponent();
         Web.DefaultBackgroundColor = System.Drawing.Color.FromArgb(251, 250, 246);
         Loaded += async (_, _) => await InitializeWebAsync();
+        _focusWatch.Tick += (_, _) => TrackExternalWindow();
+        _focusWatch.Start();
+    }
+
+    /// Recuerda la última ventana de otra app que estuvo en primer plano, para poder tomar su selección.
+    private void TrackExternalWindow()
+    {
+        var foreground = Native.GetForegroundWindow();
+        if (foreground == IntPtr.Zero) return;
+        Native.GetWindowThreadProcessId(foreground, out uint pid);
+        if (pid != Environment.ProcessId) _lastExternalWindow = foreground;
+    }
+
+    /// Devuelve el foco a la app donde estaba el usuario, copia su selección y abre la revisión.
+    private async Task CaptureSelectionAsync()
+    {
+        var target = _lastExternalWindow;
+        if (target == IntPtr.Zero || !Native.IsWindow(target))
+        {
+            Post(new { type = "notice", message = "Selecciona el texto en la otra app y vuelve a pulsar este botón." });
+            return;
+        }
+
+        Park();
+        Native.SetForegroundWindow(target);
+        await Task.Delay(250);
+
+        var captured = await TextCapture.CaptureAsync();
+        OpenWith(captured);
     }
 
     private void SetCompact(bool on)
@@ -374,6 +406,9 @@ public partial class BubbleWindow : Window
                 break;
             case "chatClear":
                 _chat.Clear();
+                break;
+            case "captureSelection":
+                _ = CaptureSelectionAsync();
                 break;
             case "reviewText":
                 var typed = root.GetProperty("text").GetString() ?? "";

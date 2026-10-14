@@ -377,6 +377,7 @@
   $("btn-write").addEventListener("click", () => openView("write"));
   $("btn-write-cancel").addEventListener("click", closeSubview);
   $("btn-write-review").addEventListener("click", submitText);
+  $("btn-write-capture").addEventListener("click", () => send({ type: "captureSelection" }));
   $("input-text").addEventListener("input", updateCounter);
 
   function closeSubview() {

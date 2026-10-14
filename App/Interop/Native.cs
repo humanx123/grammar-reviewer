@@ -61,6 +61,9 @@ internal static class Native
     public static extern uint GetWindowThreadProcessId(IntPtr hWnd, out uint processId);
 
     [DllImport("user32.dll")]
+    public static extern bool IsWindow(IntPtr hWnd);
+
+    [DllImport("user32.dll")]
     public static extern bool GetGUIThreadInfo(uint threadId, ref GuiThreadInfo info);
 
     [DllImport("user32.dll")]
