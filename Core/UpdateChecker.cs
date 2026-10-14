@@ -8,7 +8,7 @@ public sealed record UpdateInfo(string Version, string Url, string Notes);
 /** Versión de este build del motor, escritorio y CLI. */
 public static class AppInfo
 {
-    public const string Version = "1.2.0";
+    public const string Version = "1.3.0";
 }
 
 public static class UpdateChecker

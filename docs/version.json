@@ -5,8 +5,8 @@
     "url": "https://humanx123.github.io/grammar-reviewer/download/grammar-reviewer-android.apk"
   },
   "desktop": {
-    "version": "1.2.0",
-    "url": "https://github.com/humanx123/grammar-reviewer/releases/latest"
+    "version": "1.3.0",
+    "url": "https://github.com/humanx123/grammar-reviewer/releases/download/v1.3.0/GrammarReviewer-Setup-1.3.0.exe"
   },
   "cli": {
     "version": "1.2.0",

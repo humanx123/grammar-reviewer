@@ -10,8 +10,8 @@
     <AssemblyName>GrammarReviewer</AssemblyName>
     <RootNamespace>GrammarBubble.App</RootNamespace>
     <ApplicationIcon>assets\icon.ico</ApplicationIcon>
-    <Version>1.0.0</Version>
-    <AssemblyVersion>1.0.0.0</AssemblyVersion>
+    <Version>1.3.0</Version>
+    <AssemblyVersion>1.3.0.0</AssemblyVersion>
     <SelfContained>true</SelfContained>
     <RuntimeIdentifier>win-x64</RuntimeIdentifier>
     <PublishSingleFile>false</PublishSingleFile>

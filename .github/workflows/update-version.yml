@@ -17,23 +17,34 @@ jobs:
         with:
           ref: main
 
-      - name: Escribir docs/version.json
-        env:
-          TAG: ${{ github.event.release.tag_name }}
-          NOTES: ${{ github.event.release.body }}
-        run: |
-          VERSION="${TAG#v}"
-          # Solo cambia la versión de Android; escritorio y CLI conservan la suya hasta publicar sus instaladores.
-          jq --arg v "$VERSION" --arg n "$NOTES" '.notes = $n | .android.version = $v' docs/version.json > docs/version.tmp.json
-          mv docs/version.tmp.json docs/version.json
-
       - name: Copiar el APK de Android a la página
+        id: apk
         env:
           GH_TOKEN: ${{ github.token }}
           TAG: ${{ github.event.release.tag_name }}
         run: |
           mkdir -p docs/download
-          gh release download "$TAG" -p "grammar-reviewer-android.apk" -D docs/download --clobber || echo "La release no incluye APK de Android."
+          if gh release download "$TAG" -p "grammar-reviewer-android.apk" -D docs/download --clobber; then
+            echo "has_apk=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "La release no incluye APK de Android."
+            echo "has_apk=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Escribir docs/version.json
+        env:
+          TAG: ${{ github.event.release.tag_name }}
+          NOTES: ${{ github.event.release.body }}
+          HAS_APK: ${{ steps.apk.outputs.has_apk }}
+        run: |
+          VERSION="${TAG#v}"
+          # La versión de Android solo cambia si la release trae su APK; escritorio y CLI se actualizan a mano al publicar sus instaladores.
+          if [ "$HAS_APK" = "true" ]; then
+            jq --arg v "$VERSION" --arg n "$NOTES" '.notes = $n | .android.version = $v' docs/version.json > docs/version.tmp.json
+          else
+            jq --arg n "$NOTES" '.notes = $n' docs/version.json > docs/version.tmp.json
+          fi
+          mv docs/version.tmp.json docs/version.json
 
       - name: Publicar cambios
         env:
