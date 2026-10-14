@@ -17,7 +17,18 @@ data class Change(
 
 data class Result(val corrected: String, val changes: List<Change>)
 
-data class Keys(val groq: String = "", val gemini: String = "", val nvidia: String = "")
+/** Proveedor compatible con OpenAI que el usuario agrega desde Ajustes. */
+data class CustomProvider(val name: String, val baseUrl: String, val model: String, val key: String)
+
+data class Keys(
+    val groq: String = "",
+    val gemini: String = "",
+    val nvidia: String = "",
+    val groqModel: String = "openai/gpt-oss-120b",
+    val geminiModel: String = "gemini-3-flash-preview",
+    val nvidiaModel: String = "meta/llama-3.3-70b-instruct",
+    val custom: List<CustomProvider> = emptyList(),
+)
 
 enum class Mode(val label: String) {
     Correct("Corregir"),
@@ -138,9 +149,14 @@ object Llm {
 
     private fun providers(keys: Keys): List<Provider> {
         val list = mutableListOf<Provider>()
-        if (keys.gemini.isNotBlank()) list.add(Provider.Gemini(keys.gemini))
-        if (keys.groq.isNotBlank()) list.add(Provider.OpenAi("Groq", "https://api.groq.com/openai/v1", "openai/gpt-oss-120b", keys.groq))
-        if (keys.nvidia.isNotBlank()) list.add(Provider.OpenAi("NVIDIA", "https://integrate.api.nvidia.com/v1", "meta/llama-3.3-70b-instruct", keys.nvidia))
+        if (keys.gemini.isNotBlank()) list.add(Provider.Gemini(keys.gemini, keys.geminiModel))
+        if (keys.groq.isNotBlank()) list.add(Provider.OpenAi("Groq", "https://api.groq.com/openai/v1", keys.groqModel, keys.groq))
+        if (keys.nvidia.isNotBlank()) list.add(Provider.OpenAi("NVIDIA", "https://integrate.api.nvidia.com/v1", keys.nvidiaModel, keys.nvidia))
+        for (c in keys.custom) {
+            if (c.baseUrl.isNotBlank() && c.model.isNotBlank()) {
+                list.add(Provider.OpenAi(c.name.ifBlank { "Personal" }, c.baseUrl.trimEnd('/'), c.model, c.key.ifBlank { null }))
+            }
+        }
         list.add(Provider.OpenAi("Kilo", "https://api.kilo.ai/api/gateway", "kilo-auto/free", null))
         list.add(Provider.OpenAi("LLM7", "https://api.llm7.io/v1", "gpt-oss:20b", null))
         return list
@@ -149,7 +165,7 @@ object Llm {
     internal sealed class Provider {
         abstract suspend fun complete(system: String, turns: List<Pair<String, String>>, json: Boolean): String
 
-        class Gemini(private val key: String) : Provider() {
+        class Gemini(private val key: String, private val model: String) : Provider() {
             override suspend fun complete(system: String, turns: List<Pair<String, String>>, json: Boolean): String {
                 val contents = JSONArray()
                 for ((role, text) in turns) {
@@ -161,7 +177,7 @@ object Llm {
                     .put("contents", contents)
                     .put("generationConfig", JSONObject().put("temperature", 0.2)
                         .put("responseMimeType", if (json) "application/json" else "text/plain"))
-                val url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent"
+                val url = "https://generativelanguage.googleapis.com/v1beta/models/$model:generateContent"
                 val raw = post(url, mapOf("x-goog-api-key" to key), body.toString(), "Gemini")
                 val text = JSONObject(raw).optJSONArray("candidates")?.optJSONObject(0)
                     ?.optJSONObject("content")?.optJSONArray("parts")?.optJSONObject(0)?.optString("text")

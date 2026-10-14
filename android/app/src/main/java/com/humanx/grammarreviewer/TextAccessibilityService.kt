@@ -50,6 +50,13 @@ class TextAccessibilityService : AccessibilityService() {
         }
     }
 
+    /** Pega lo que haya en el portapapeles en el campo activo, reemplazando la selección. */
+    fun pasteIntoFocused(): Boolean {
+        val node = findFocus(AccessibilityNodeInfo.FOCUS_INPUT) ?: return false
+        if (!node.isEditable) return false
+        return node.performAction(AccessibilityNodeInfo.ACTION_PASTE)
+    }
+
     fun replaceFocused(newFull: String): Boolean {
         val node = findFocus(AccessibilityNodeInfo.FOCUS_INPUT) ?: return false
         if (!node.isEditable) return false

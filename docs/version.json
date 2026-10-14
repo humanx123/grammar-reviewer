@@ -1,0 +1,15 @@
+{
+  "notes": "Versión 1.2.0: botones de copiar y pegar en el globo, ajustes para agregar proveedores y modelos, panel rediseñado y aviso de actualizaciones.",
+  "android": {
+    "version": "1.2.0",
+    "url": "https://humanx123.github.io/grammar-reviewer/download/grammar-reviewer-android.apk"
+  },
+  "desktop": {
+    "version": "1.2.0",
+    "url": "https://github.com/humanx123/grammar-reviewer/releases/latest"
+  },
+  "cli": {
+    "version": "1.2.0",
+    "url": "https://github.com/humanx123/grammar-reviewer/releases/latest"
+  }
+}

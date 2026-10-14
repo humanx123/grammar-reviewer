@@ -16,6 +16,7 @@ if (args.Length > 1 && args[0] == "--chat")
     }
 }
 
+var updateCheck = UpdateChecker.CheckAsync("cli");
 var english = args.Contains("--en");
 args = args.Where(a => a != "--en").ToArray();
 var fallbackOnly = args.Length > 0 && args[0] == "--fallback-only";
@@ -45,6 +46,9 @@ try
     Console.WriteLine();
     foreach (var c in result.Changes)
         Console.WriteLine($"  {c.Original} -> {c.Replacement}  ({c.Reason})");
+
+    if (updateCheck.IsCompletedSuccessfully && updateCheck.Result is { } update)
+        Console.Error.WriteLine($"Hay una nueva versión ({update.Version}): {update.Url}");
 
     if (result.Changes.Count > 0)
     {

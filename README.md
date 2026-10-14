@@ -18,7 +18,7 @@ Sitio del proyecto: https://humanx123.github.io/grammar-reviewer/
 
 ### Windows (aplicación completa)
 
-1. Descarga `GrammarReviewer-Setup-1.0.0.exe` desde [Releases](https://github.com/humanx123/grammar-reviewer/releases).
+1. Descarga `GrammarReviewer-Setup-1.2.0.exe` desde [Releases](https://github.com/humanx123/grammar-reviewer/releases).
 2. Ejecútalo. Se instala por usuario, sin permisos de administrador.
 3. Requiere Microsoft Edge WebView2 Runtime (Windows 10/11 normalmente ya lo tienen).
 

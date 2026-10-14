@@ -1,0 +1,49 @@
+name: Actualizar version.json
+
+# Cada release publicada regenera docs/version.json (lo lee la app para avisar de
+# actualizaciones) y copia el APK de Android a la página de GitHub Pages.
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Escribir docs/version.json
+        env:
+          TAG: ${{ github.event.release.tag_name }}
+          NOTES: ${{ github.event.release.body }}
+        run: |
+          VERSION="${TAG#v}"
+          jq -n --arg v "$VERSION" --arg n "$NOTES" '{
+            notes: $n,
+            android: { version: $v, url: "https://humanx123.github.io/grammar-reviewer/download/grammar-reviewer-android.apk" },
+            desktop: { version: $v, url: "https://github.com/humanx123/grammar-reviewer/releases/latest" },
+            cli:     { version: $v, url: "https://github.com/humanx123/grammar-reviewer/releases/latest" }
+          }' > docs/version.json
+
+      - name: Copiar el APK de Android a la página
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.event.release.tag_name }}
+        run: |
+          mkdir -p docs/download
+          gh release download "$TAG" -p "grammar-reviewer-android.apk" -D docs/download --clobber || echo "La release no incluye APK de Android."
+
+      - name: Publicar cambios
+        env:
+          TAG: ${{ github.event.release.tag_name }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/version.json docs/download
+          git commit -m "Actualizar version.json y APK a ${TAG}" || echo "Sin cambios que publicar."
+          git push

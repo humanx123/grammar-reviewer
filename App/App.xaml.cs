@@ -38,6 +38,7 @@ public partial class App : Application
 
         bool registered = Native.RegisterHotKey(handle, HotkeyId, Native.ModControl | Native.ModAlt | Native.ModNoRepeat, 0x47);
         BuildTray(registered);
+        _ = CheckForUpdatesAsync();
 
         var view = e.Args.FirstOrDefault(a => a.StartsWith("--view=", StringComparison.Ordinal))?["--view=".Length..]
             ?? (e.Args.Contains("--settings") ? "settings" : e.Args.Contains("--help") ? "help" : null);
@@ -105,6 +106,19 @@ public partial class App : Application
                 ? "Selecciona texto y pulsa Ctrl+Alt+G para revisarlo."
                 : "No se pudo registrar Ctrl+Alt+G (otra app lo usa). Usa el icono de la bandeja.",
             hotkeyRegistered ? ToolTipIcon.Info : ToolTipIcon.Warning);
+    }
+
+    private async Task CheckForUpdatesAsync()
+    {
+        var info = await GrammarBubble.Core.UpdateChecker.CheckAsync("desktop");
+        if (info is null || _tray is null) return;
+        _tray.BalloonTipClicked += (_, _) =>
+            System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(info.Url) { UseShellExecute = true });
+        _tray.ShowBalloonTip(
+            8000,
+            "Grammar Reviewer",
+            $"Nueva versión {info.Version} disponible. Haz clic para descargarla.",
+            ToolTipIcon.Info);
     }
 
     protected override void OnExit(ExitEventArgs e)
