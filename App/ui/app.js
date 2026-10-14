@@ -192,7 +192,7 @@
 
       case "loading":
         setMode(msg.mode);
-        $("pipeline").textContent = "Revisando…";
+        $("pipeline").textContent = msg.label || "Revisando…";
         showView("review");
         showState("loading");
         break;
@@ -211,8 +211,14 @@
           $("changes-label").textContent = "Cambios";
         }
         renderChanges(msg.changes, msg.mode);
+        $("verdict").textContent = msg.verdict || "";
+        $("verdict").hidden = !msg.verdict;
         showView("review");
         showState("result");
+        break;
+
+      case "fileLoaded":
+        setInputStatus(`Archivo: ${msg.name} · ${msg.chars.toLocaleString("es-MX").replace(/,/g, " ")} caracteres${msg.truncated ? " (se revisan los primeros 60 000)" : ""}`);
         break;
 
       case "notice":
@@ -377,7 +383,9 @@
   $("btn-write").addEventListener("click", () => openView("write"));
   $("btn-write-cancel").addEventListener("click", closeSubview);
   $("btn-write-review").addEventListener("click", submitText);
-  $("btn-write-capture").addEventListener("click", () => send({ type: "captureSelection" }));
+  $("btn-write-take").addEventListener("click", () => send({ type: "captureSelection" }));
+  $("btn-write-area").addEventListener("click", () => send({ type: "captureArea" }));
+  $("btn-write-file").addEventListener("click", () => send({ type: "pickFile" }));
   $("input-text").addEventListener("input", updateCounter);
 
   function closeSubview() {

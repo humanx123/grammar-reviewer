@@ -6,6 +6,7 @@ internal static class Native
 {
     public const uint ModAlt = 0x0001;
     public const uint ModControl = 0x0002;
+    public const uint ModShift = 0x0004;
     public const uint ModNoRepeat = 0x4000;
     public const int WmHotkey = 0x0312;
 
@@ -62,6 +63,9 @@ internal static class Native
 
     [DllImport("user32.dll")]
     public static extern bool IsWindow(IntPtr hWnd);
+
+    [DllImport("user32.dll")]
+    public static extern int GetSystemMetrics(int nIndex);
 
     [DllImport("user32.dll")]
     public static extern bool GetGUIThreadInfo(uint threadId, ref GuiThreadInfo info);

@@ -76,6 +76,80 @@ public partial class BubbleWindow : Window
         OpenWith(captured);
     }
 
+    /// Pide un área de la pantalla, la lee con el OCR de Windows y abre la revisión con el texto leído.
+    public async Task CaptureAreaAsync()
+    {
+        Park();
+        await Task.Delay(150); // que el globo no salga en la captura
+
+        var png = await new SnipWindow().ShowAsync();
+        if (png is null) return;
+
+        ShowBusy("Leyendo el texto de la captura…");
+        try
+        {
+            var text = await OcrService.RecognizeAsync(png);
+            OpenWith(new CapturedText
+            {
+                SourceWindow = IntPtr.Zero,
+                Text = text,
+                Anchor = System.Windows.Forms.Cursor.Position
+            });
+        }
+        catch (Exception ex)
+        {
+            Post(new { type = "error", message = ex.Message });
+        }
+    }
+
+    /// Límite de texto para un documento completo (unos 10 bloques de revisión).
+    public const int MaxFileChars = 60000;
+
+    /// Elige un PDF, Word, .txt o .md, extrae su texto y revisa el documento completo.
+    private void PickDocument()
+    {
+        using var dialog = new System.Windows.Forms.OpenFileDialog
+        {
+            Title = "Elige un documento para revisar",
+            Filter = "Documentos (*.pdf;*.docx;*.txt;*.md)|*.pdf;*.docx;*.txt;*.md|Todos los archivos (*.*)|*.*"
+        };
+        if (dialog.ShowDialog() != System.Windows.Forms.DialogResult.OK) return;
+
+        string text;
+        try
+        {
+            text = DocumentReader.Read(dialog.FileName);
+        }
+        catch (Exception ex) when (ex is InvalidOperationException or IOException or UnauthorizedAccessException or InvalidDataException)
+        {
+            Post(new { type = "error", message = ex.Message });
+            return;
+        }
+
+        var name = Path.GetFileName(dialog.FileName);
+        var truncated = text.Length > MaxFileChars;
+        if (truncated) text = text[..MaxFileChars];
+
+        ShowBusy($"Revisando {name}…");
+        Post(new { type = "fileLoaded", name, chars = text.Length, truncated });
+        _captured = new CapturedText
+        {
+            SourceWindow = IntPtr.Zero,
+            Text = text,
+            Anchor = System.Windows.Forms.Cursor.Position
+        };
+        _ = RunAsync(CorrectionMode.Correct);
+    }
+
+    private void ShowBusy(string label)
+    {
+        SetCompact(false);
+        PlaceNear(System.Windows.Forms.Cursor.Position);
+        Reveal();
+        FocusWeb();
+        Post(new { type = "loading", mode = _mode.ToString(), label });
+    }
+
     private void SetCompact(bool on)
     {
         if (on == _compact) return;
@@ -410,6 +484,12 @@ public partial class BubbleWindow : Window
             case "captureSelection":
                 _ = CaptureSelectionAsync();
                 break;
+            case "captureArea":
+                _ = CaptureAreaAsync();
+                break;
+            case "pickFile":
+                PickDocument();
+                break;
             case "reviewText":
                 var typed = root.GetProperty("text").GetString() ?? "";
                 if (string.IsNullOrWhiteSpace(typed)) break;
@@ -489,6 +569,7 @@ public partial class BubbleWindow : Window
                 type = "result",
                 mode = _mode.ToString(),
                 pipeline = _pipeline,
+                verdict = Verdict.For(_result.Changes, _lang),
                 corrected = _result.Corrected,
                 changes = _result.Changes.Select(c => new { original = c.Original, replacement = c.Replacement, reason = c.Reason, selected = true, applicable = false, sentence = "" }),
                 segments = Array.Empty<object>()
@@ -504,6 +585,7 @@ public partial class BubbleWindow : Window
             type = "result",
             mode = _mode.ToString(),
             pipeline = _pipeline,
+            verdict = Verdict.For(_result.Changes, _lang),
             corrected = text,
             changes = applied.Select((a, i) => new
             {

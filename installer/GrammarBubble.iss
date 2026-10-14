@@ -1,5 +1,5 @@
 #define AppName "Grammar Reviewer"
-#define AppVersion "1.3.0"
+#define AppVersion "1.4.0"
 #define AppExe "GrammarReviewer.exe"
 
 [Setup]

@@ -68,6 +68,7 @@
           <div id="state-result" class="state" hidden>
             <div class="label" id="result-label">Propuesta</div>
             <div class="diff" id="diff" aria-live="polite"></div>
+            <p class="verdict" id="verdict" hidden></p>
             <div class="label changes-head">
               <span><span id="changes-label">Cambios</span> <span class="count" id="count"></span></span>
               <span class="changes-actions" id="changes-actions">
@@ -107,6 +108,11 @@
       <section id="view-write" class="view" hidden>
         <div class="body">
           <div class="label">Texto a revisar</div>
+          <div class="source-row" style="display:flex;gap:8px;margin-bottom:8px">
+            <button class="ghost" id="btn-write-take" title="Toma el texto seleccionado en la otra app y lo revisa">Tomar selección</button>
+            <button class="ghost" id="btn-write-area" title="Selecciona un área de la pantalla y lee su texto (Ctrl+Shift+S)">Capturar área</button>
+            <button class="ghost" id="btn-write-file" title="Abre un PDF, Word, .txt o .md y revisa el documento completo">Abrir documento</button>
+          </div>
           <textarea id="input-text" class="writer" placeholder="Escribe o pega aquí el texto que quieres revisar…" spellcheck="false"></textarea>
           <div class="counter-row">
             <span class="hint" id="input-status"></span>
@@ -115,7 +121,6 @@
         </div>
         <footer class="foot">
           <button class="ghost" id="btn-write-cancel">Cancelar</button>
-          <button class="ghost" id="btn-write-capture" title="Toma el texto seleccionado en la otra app y lo revisa">Tomar selección</button>
           <button class="primary" id="btn-write-review">Revisar <kbd>Ctrl+Enter</kbd></button>
         </footer>
       </section>
