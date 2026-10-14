@@ -1,15 +1,15 @@
 {
-    "notes":  "Versión 1.2.1 (Android): el globo se puede ocultar desde su panel (icono de ojo) y volver a mostrar desde la app; cabecera corregida; botones de permisos más claros.",
-    "android":  {
-                    "version":  "1.2.1",
-                    "url":  "https://humanx123.github.io/grammar-reviewer/download/grammar-reviewer-android.apk"
-                },
-    "desktop":  {
-                    "version":  "1.2.0",
-                    "url":  "https://github.com/humanx123/grammar-reviewer/releases/latest"
-                },
-    "cli":  {
-                "version":  "1.2.0",
-                "url":  "https://github.com/humanx123/grammar-reviewer/releases/latest"
-            }
+  "notes": "Versión 1.2.1 (Android): el globo se puede ocultar desde su panel (icono de ojo) y volver a mostrar desde la app; cabecera corregida; botones de permisos más claros.",
+  "android": {
+    "version": "1.2.1",
+    "url": "https://humanx123.github.io/grammar-reviewer/download/grammar-reviewer-android.apk"
+  },
+  "desktop": {
+    "version": "1.2.0",
+    "url": "https://github.com/humanx123/grammar-reviewer/releases/latest"
+  },
+  "cli": {
+    "version": "1.2.0",
+    "url": "https://github.com/humanx123/grammar-reviewer/releases/latest"
+  }
 }
