@@ -1,5 +1,5 @@
 {
-  "notes": "Versión 1.2.0: botones de copiar y pegar en el globo, ajustes para agregar proveedores y modelos, panel rediseñado y aviso de actualizaciones.",
+  "notes": "Versión 1.2.0\n\n- **Android:** panel del globo rediseñado con iconos (revisar, traducir, copiar, pegar, aplicar); tocar el globo cierra el panel; ajustes para agregar proveedores y cambiar modelos.\n- **Escritorio y CLI:** aviso de nueva versión.\n- **Automático:** version.json se regenera en cada release.",
   "android": {
     "version": "1.2.0",
     "url": "https://humanx123.github.io/grammar-reviewer/download/grammar-reviewer-android.apk"
