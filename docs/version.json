@@ -1,5 +1,5 @@
 {
-  "notes": "Windows 1.4.0: capturar área con OCR (Ctrl+Shift+S), abrir PDF, Word, .txt o .md para revisar documentos completos y veredicto del texto revisado.",
+  "notes": "Windows 1.4.0:\n- **Capturar área** (Ctrl+Shift+S, botón en Escribir o bandeja): selecciona una zona de la pantalla y su texto se lee con el OCR de Windows (español e inglés, sin clave ni internet) y se revisa.\n- **Abrir documento**: elige un PDF, Word (.docx), .txt o .md y revisa el documento completo (hasta 60 000 caracteres).\n- **Veredicto** del texto revisado debajo de la propuesta.\n- Tomar selección (versión anterior) sigue disponible.\n- Instalación por usuario, sin permisos de administrador.",
   "android": {
     "version": "1.2.1",
     "url": "https://humanx123.github.io/grammar-reviewer/download/grammar-reviewer-android.apk"
