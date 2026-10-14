@@ -1,0 +1,91 @@
+name: CI
+
+# Compila y prueba todo en cada cambio: motor, CLI (Windows, Linux, macOS), app de Windows y APK de Android.
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  tests:
+    name: Pruebas del motor
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "8.0.x"
+      - name: dotnet test
+        run: dotnet test Tests/GrammarBubble.Tests.csproj --logger "trx;LogFileName=results.trx"
+      - name: Subir resultados
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: Tests/TestResults/
+
+  cli:
+    name: CLI ${{ matrix.rid }}
+    needs: tests
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - rid: linux-x64
+            os: ubuntu-latest
+          - rid: win-x64
+            os: windows-latest
+          - rid: osx-arm64
+            os: macos-latest
+          - rid: osx-x64
+            os: macos-13
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "8.0.x"
+      - name: Publicar CLI
+        run: dotnet publish Cli/GrammarBubble.Cli.csproj -c Release -r ${{ matrix.rid }} --self-contained true -p:PublishSingleFile=true -o out
+      - uses: actions/upload-artifact@v4
+        with:
+          name: cli-${{ matrix.rid }}
+          path: out/
+
+  windows-app:
+    name: App de Windows
+    needs: tests
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "8.0.x"
+      - name: Publicar app
+        run: dotnet publish App/GrammarBubble.App.csproj -c Release -r win-x64 --self-contained true -o out
+      - uses: actions/upload-artifact@v4
+        with:
+          name: app-windows-x64
+          path: out/
+
+  android:
+    name: APK Android
+    needs: tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+      - uses: android-actions/setup-android@v3
+      - name: Compilar APK de depuración
+        working-directory: android
+        run: |
+          chmod +x gradlew
+          ./gradlew assembleDebug --no-daemon
+      - uses: actions/upload-artifact@v4
+        with:
+          name: grammar-reviewer-android
+          path: android/app/build/outputs/apk/debug/app-debug.apk
